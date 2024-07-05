@@ -1,3 +1,7 @@
+# APIs and stuff
+api_key.py
+__init__.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
