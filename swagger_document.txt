@@ -1,0 +1,480 @@
+# Motion REST API
+
+**Version:** 1.0.0
+
+**Description:** <!-- theme: warning -->
+
+> ### Rate Limit Information
+>
+> The Motion API is currently rate limited to 12 requests per minute per user. In the event a user exceeds this rate limit 3 times
+> in a singe 24 hour period, their API access will be disabled and will require that they contact support to have it re-enabled.
+
+<!-- theme: info -->
+
+> ### Note on Date Formats
+>
+> All dates that the Motion API works with are in the format of ISO 8601. **Motion will always return dates in UTC.**
+
+
+## Path: `/comments`
+
+### Method: `POST`
+
+**Summary:** Create Comment
+
+**Description:** ## Comment Content Input
+
+When posting a comment, the content will be treated as [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+
+
+**Parameters:**
+
+**Request Body:**
+- **application/json:** #/components/schemas/CommentPost
+
+**Responses:**
+- **201:** 
+  - **application/json:** #/components/schemas/Comment
+
+### Method: `GET`
+
+**Summary:** List Comments
+
+**Description:** N/A
+
+**Parameters:**
+- **cursor** (query): Use if a previous request returned a cursor. Will page through results
+- **taskId** (query): No description
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/ListComments
+
+## Path: `/projects/{projectId}`
+
+### Method: `GET`
+
+**Summary:** Retrieve Project
+
+**Description:** N/A
+
+**Parameters:**
+- **projectId** (path): No description
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/Project
+
+## Path: `/projects`
+
+### Method: `GET`
+
+**Summary:** List Projects
+
+**Description:** N/A
+
+**Parameters:**
+- **cursor** (query): Use if a previous request returned a cursor. Will page through results
+- **workspaceId** (query): No description
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/ListProjects
+
+### Method: `POST`
+
+**Summary:** Create Project
+
+**Description:** N/A
+
+**Parameters:**
+
+**Request Body:**
+- **application/json:** #/components/schemas/ProjectPost
+
+**Responses:**
+- **201:** 
+  - **application/json:** #/components/schemas/Project
+
+## Path: `/recurring-tasks`
+
+### Method: `POST`
+
+**Summary:** Create a Recurring Task
+
+**Description:** ## Description Input
+
+When passing in a task description, the input will be treated as [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+
+# Defining Frequencies
+
+In order to give our API all the power that motion has to offer, we allow calls to create recurring tasks in the same way you can through the UI.
+
+## Defining specific days for a frequency
+
+<!-- theme: warning -->
+
+> ### Note
+>
+> Defining days should always be used along with a specific frequency type as defined below.
+> A array of days should never be used on its own. See examples below.
+
+When picking a set of specific week days, we expect it to be defined as an array with a subset of the following values.
+
+- MO - Monday
+- TU - Tuesday
+- WE - Wednesday
+- TH - Thursday
+- FR - Friday
+- SA - Saturday
+- SU - Sunday
+
+Example - `[MO, FR, SU]` would mean Monday, Friday and Sunday.
+
+## Defining a daily frequency
+
+- `daily_every_day`
+- `daily_every_week_day`
+- `daily_specific_days_$DAYS_ARRAY$`
+  - Ex: `daily_specific_days_[MO, TU, FR]`
+
+## Defining a weekly frequency
+
+- `weekly_any_day`
+- `weekly_any_week_day`
+- `weekly_specific_days_$DAYS_ARRAY$`
+  - Ex: `weekly_specific_days_[MO, TU, FR]`
+
+## Defining a bi-weekly frequency
+
+- `biweekly_first_week_specific_days_$DAYS_ARRAY$`
+  - Ex: `biweekly_first_week_specific_days_[MO, TU, FR]`
+- `biweekly_first_week_any_day`
+- `biweekly_first_week_any_week_day`
+- `biweekly_second_week_any_day`
+- `biweekly_second_week_any_week_day`
+
+## Defining a monthly frequency
+
+### Specific Week Day Options
+
+When choosing the 1st, 2nd, 3rd, 4th or last day of the week for the month, it takes the form of any of the following where $DAY$ can be substituted for the day code mentioned above.
+
+- `monthly_first_$DAY$`
+- `monthly_second_$DAY$`
+- `monthly_third_$DAY$`
+- `monthly_fourth_$DAY$`
+- `monthly_last_$DAY$`
+
+**Example**
+`monthly_first_MO`
+
+### Specific Day Options
+
+When choosing a specific day of the month, for example the 6th, it would be defined with just the number like below.
+
+Examples:
+
+- `monthly_1`
+- `monthly_15`
+- `monthly_31`
+
+In the case you choose a numeric value for a month that does not have that many days, we will default to the last day of the month.
+
+### Specific Week Options
+
+**Any Day**
+
+- `monthly_any_day_first_week`
+- `monthly_any_day_second_week`
+- `monthly_any_day_third_week`
+- `monthly_any_day_fourth_week`
+- `monthly_any_day_last_week`
+
+**Any Week Day**
+
+- `monthly_any_week_day_first_week`
+- `monthly_any_week_day_second_week`
+- `monthly_any_week_day_third_week`
+- `monthly_any_week_day_fourth_week`
+- `monthly_any_week_day_last_week`
+
+### Other Options
+
+- `monthly_last_day_of_month`
+- `monthly_any_week_day_of_month`
+- `monthly_any_day_of_month`
+
+## Defining a quarterly frequency
+
+### First Days
+
+- `quarterly_first_day`
+- `quarterly_first_week_day`
+- `quarterly_first_$DAY$`
+  - Ex. `quarterly_first_MO`
+
+### Last Days
+
+- `quarterly_last_day`
+- `quarterly_last_week_day`
+- `quarterly_last_$DAY$`
+  - Ex. `quarterly_last_MO`
+
+### Other Options
+
+- `quarterly_any_day_first_week`
+- `quarterly_any_day_second_week`
+- `quarterly_any_day_last_week`
+- `quarterly_any_day_first_month`
+- `quarterly_any_day_second_month`
+- `quarterly_any_day_third_month`
+
+
+**Parameters:**
+
+**Request Body:**
+- **application/json:** #/components/schemas/RecurringTasksPost
+
+**Responses:**
+- **201:** 
+  - **application/json:** #/components/schemas/RecurringTask
+
+### Method: `GET`
+
+**Summary:** List Recurring Tasks
+
+**Description:** N/A
+
+**Parameters:**
+- **cursor** (query): Use if a previous request returned a cursor. Will page through results
+- **workspaceId** (query): The id of the workspace you want tasks from.
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/ListRecurringTasks
+
+## Path: `/recurring-tasks/{taskId}`
+
+### Method: `DELETE`
+
+**Summary:** Delete a Recurring Task
+
+**Description:** N/A
+
+**Parameters:**
+- **taskId** (path): No description
+
+**Responses:**
+- **204:** 
+
+## Path: `/schedules`
+
+### Method: `GET`
+
+**Summary:** Get schedules
+
+**Description:** Get a list of schedules for your user
+
+**Parameters:**
+
+**Responses:**
+- **200:** 
+  - **application/json:** No $ref available
+
+## Path: `/statuses`
+
+### Method: `GET`
+
+**Summary:** List statuses for a workspace
+
+**Description:** N/A
+
+**Parameters:**
+- **workspaceId** (query): No description
+
+**Responses:**
+- **200:** 
+  - **application/json:** No $ref available
+
+## Path: `/tasks/{taskId}`
+
+### Method: `PATCH`
+
+**Summary:** Update a Task
+
+**Description:** N/A
+
+**Parameters:**
+- **taskId** (path): No description
+
+**Request Body:**
+- **application/json:** #/components/schemas/TaskPatch
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/Task
+
+### Method: `GET`
+
+**Summary:** Retrieve a Task
+
+**Description:** N/A
+
+**Parameters:**
+- **taskId** (path): No description
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/Task
+
+### Method: `DELETE`
+
+**Summary:** Delete a Task
+
+**Description:** N/A
+
+**Parameters:**
+- **taskId** (path): No description
+
+**Responses:**
+- **204:** 
+
+## Path: `/tasks`
+
+### Method: `POST`
+
+**Summary:** Create Task
+
+**Description:** ## Description Input
+
+When passing in a task description, the input will be treated as [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+
+
+**Parameters:**
+
+**Request Body:**
+- **application/json:** #/components/schemas/TaskPost
+
+**Responses:**
+- **201:** 
+  - **application/json:** #/components/schemas/Task
+
+### Method: `GET`
+
+**Summary:** List Tasks
+
+**Description:** <!-- theme: warning -->
+
+> ### Note
+>
+> By default, all tasks that are completed are left out unless
+> specifically filtered for via the status.
+
+
+**Parameters:**
+- **cursor** (query): Use if a previous request returned a cursor. Will page through results
+- **label** (query): Limit tasks returned by label on the task
+- **status** (query): Limit tasks returned by statuses that exist on tasks, cannot specify this ('status')
+AND includeAllStatuses in the same request
+- **includeAllStatuses** (query): Limit tasks returned by statuses that exist on tasks, cannot specify this ('includeAllStatuses')
+AND status in the same request
+- **workspaceId** (query): The id of the workspace you want tasks from. If not provided, will return tasks from all workspaces the user is a member of.
+- **projectId** (query): Limit tasks returned to a given project
+- **name** (query): Limit tasks returned to those that contain this string. Case in-sensitive
+- **assigneeId** (query): Limit tasks returned to a specific assignee
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/ListTasks
+
+## Path: `/tasks/{taskId}/assignee`
+
+### Method: `DELETE`
+
+**Summary:** Unassign a task
+
+**Description:** <!-- theme: warning -->
+
+> ### Note
+>
+> For simplicity, use this endpoint to unassign a task
+> instead of the generic update task endpoint.
+> This also prevents bugs and accidental unassignments.
+
+
+**Parameters:**
+- **taskId** (path): No description
+
+**Responses:**
+- **204:** 
+
+## Path: `/tasks/{taskId}/move`
+
+### Method: `PATCH`
+
+**Summary:** Move Workspace
+
+**Description:** ### Notes
+
+When moving tasks from one workspace to another,
+the tasks project, status, and label(s) and assignee will all be reset
+
+
+**Parameters:**
+- **taskId** (path): No description
+
+**Request Body:**
+- **application/json:** #/components/schemas/MoveTask
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/Task
+
+## Path: `/users`
+
+### Method: `GET`
+
+**Summary:** List users
+
+**Description:** N/A
+
+**Parameters:**
+- **cursor** (query): Use if a previous request returned a cursor. Will page through results
+- **workspaceId** (query): No description
+- **teamId** (query): No description
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/ListUsers
+
+## Path: `/users/me`
+
+### Method: `GET`
+
+**Summary:** Get My User
+
+**Description:** N/A
+
+**Parameters:**
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/User
+
+## Path: `/workspaces`
+
+### Method: `GET`
+
+**Summary:** List workspaces
+
+**Description:** N/A
+
+**Parameters:**
+- **cursor** (query): Use if a previous request returned a cursor. Will page through results
+- **ids** (query): No description
+
+**Responses:**
+- **200:** 
+  - **application/json:** #/components/schemas/ListWorkspaces
+
